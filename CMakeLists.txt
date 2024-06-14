@@ -25,24 +25,29 @@ find_package(OpenCV REQUIRED)
 # 查找 SeetFace2 库
 find_package(SeetaFace)
 
-
 # 搜索头文件
 include_directories(include/)
+include_directories(include/AttendanceServer)
+include_directories(include/FaceAttendance)
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(thirdpart/SeetFace2_x64/include/seeta)
 file(GLOB HEADER_FILES "include/*.h")
+file(GLOB FACE_HEADER_FILES "include/FaceAttendance/*.h")
+file(GLOB SERVER_HEADER_FILES "include/AttendanceServer/*.h")
 
 # 搜索源文件
 file(GLOB SRC_LIST "src/*.cpp")
+file(GLOB SERVER_LIST "src/AttendanceServer/*.cpp")
+file(GLOB FACE_LIST "src/FaceAttendance/*.cpp")
 
 # 搜索 UI 文件
 file(GLOB UI_FILES "ui/*.ui")
 
 # 搜索资源文件（图片、图标、音乐等）
-file(GLOB_RECURSE RESOURCES "sources/*.qrc")
+file(GLOB RESOURCES "sources/*.qrc")
 
 # 调用预编译器 moc，需要使用 QT6_WRAP_CPP 宏
-QT6_WRAP_CPP(HEADERS_MOC ${HEADER_FILES})
+QT6_WRAP_CPP(HEADERS_MOC ${HEADER_FILES} ${FACE_HEADER_FILES} ${SERVER_HEADER_FILES})
 
 # 使用 uic 处理 .ui 文件
 QT6_WRAP_UI(FORMS_HEADERS ${UI_FILES})
@@ -51,13 +56,14 @@ QT6_WRAP_UI(FORMS_HEADERS ${UI_FILES})
 QT6_ADD_RESOURCES(RCC ${RESOURCES})
 
 # 添加可执行文件
-add_executable(FaceRecognitionAttendanceSys main.cpp ${HEADERS_MOC} ${SRC_LIST} ${FORMS_HEADERS} ${RCC})
+add_executable(FaceRecognitionAttendanceSys main.cpp ${FACE_LIST} ${SERVER_LIST} ${HEADERS_MOC} ${SRC_LIST} ${FORMS_HEADERS} ${RCC})
 
 # 链接 OpenCV 库
 target_link_libraries(FaceRecognitionAttendanceSys ${OpenCV_LIBS})
 
 # 链接 SeetFace2 库
 target_link_libraries(FaceRecognitionAttendanceSys ${SeetaFace_LIBRARIES})
+
 
 # 链接 Qt6 库
 target_link_libraries(FaceRecognitionAttendanceSys

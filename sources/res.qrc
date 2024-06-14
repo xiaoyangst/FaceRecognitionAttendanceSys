@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/yes.ico</file>
+        <file>images/authenticate.png</file>
+        <file>qss/style.qss</file>
+    </qresource>
+</RCC>

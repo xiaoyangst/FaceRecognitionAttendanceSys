@@ -1,48 +1,68 @@
 #include <QApplication>
 #include <QDebug>
 
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "faceattendance.h"
+#include "ui_faceattendance.h"
 
 #include <FaceDetector.h>
 using namespace seeta::v2;
-#include <opencv2/opencv.hpp>
-using namespace cv;
+#include <QFile>
 using namespace std;
 
-void test(){
-  cv::Mat image = cv::imread(R"(C:\Users\xy\Pictures\ClionPicture\02.jpg)", cv::IMREAD_COLOR);
-
-  if (image.empty()) {
-    std::cout << "无法加载图像！" << std::endl;
-    return ;
+void loadQss(QApplication &application){
+  QFile file(":/qss/style.qss");
+  if (file.open(QFile::ReadOnly)){
+    QString styleSheet = QLatin1String(file.readAll());
+    application.setStyleSheet(styleSheet);
+    file.close();
   }
-
-// 创建窗口并显示图像
-  cv::namedWindow("test", cv::WINDOW_NORMAL);
-  cv::imshow("test", image);
-
-// 等待用户按下任意键后关闭窗口
-  cv::waitKey(0);
-
-// 释放窗口和图像资源
-  cv::destroyAllWindows();
-  image.release();
 }
 
-void face(){
-  seeta::ModelSetting::Device device = seeta::ModelSetting::CPU;
-  int id = 0;
-  seeta::ModelSetting FD_mddel(R"(C:\Users\xy\Desktop\Codes\FaceRecognitionAttendanceSys\thirdpart\SeetFace2_x64\bin\model\fd_2_00.dat)",device,id);
-  seeta::FaceDetector FD(FD_mddel);
-}
+#include <filesystem>
+namespace fs = std::filesystem;
+#include <opencv2/opencv.hpp>
+using namespace cv;
+
+int studyOpencv(){
+
+  // 获取当前路径
+  std::cout << "Current path is " << fs::current_path() << '\n';
+  VideoCapture capture(R"(C:\Users\xy\Desktop\Codes\FaceRecognitionAttendanceSys\video.mp4)");
+  if (!capture.isOpened()){
+    cout<<"视频读取失败"<<endl;
+    return -1;
+  }
+  namedWindow("Video",WINDOW_NORMAL); // 创建窗口
+  while (true){
+    Mat frame;
+    bool status = capture.read(frame);  // 读取帧
+    //如果视频结束，退出循环
+    if (!status)
+    {
+      cout << "End of the video" << endl;
+      break;
+    }
+
+    //在窗口中显示帧
+    imshow("Video", frame);
+    //等待1毫秒或用户按下ESC
+    if (waitKey(1) == 27)
+    {
+      cout << "Stopped the video" << endl;
+      break;
+    }
+  }
+  return 0;
+};
+
+
 
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
-  MainWindow main_window;
-  main_window.show();
-  test();
-  face();
+  loadQss(a);
+  FaceAttendance face_attendance;
+  face_attendance.show();
+  studyOpencv();
   qDebug() << "Hello World";
   return QApplication::exec();
 }
